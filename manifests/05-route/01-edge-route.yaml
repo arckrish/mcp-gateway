@@ -1,0 +1,29 @@
+# OpenShift Route that exposes the MCP Gateway externally.
+#
+# Why a Route instead of relying on the Gateway's own HTTPS listener?
+# The MCPGatewayExtension targets the HTTP listener (port 80) so the broker
+# can talk plain HTTP to upstreams (workaround for the 0.6.0 HTTPS limitation).
+# This Route adds TLS in front of that HTTP listener using OpenShift's
+# default ingress wildcard cert via edge termination.
+#
+# Traffic path:
+#   client -> HTTPS:443 -> OpenShift Router (edge TLS) ->
+#   HTTP:80 -> Gateway Service -> Istio Gateway pod ->
+#   mcp-gateway-route -> broker pod -> upstream MCP server
+#
+# REPLACE __MCP_HOSTNAME__ before applying (install.sh does this automatically).
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: mcp-gateway-edge
+  namespace: openshift-ingress
+spec:
+  host: __MCP_HOSTNAME__
+  to:
+    kind: Service
+    name: mcp-gateway-openshift-default
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

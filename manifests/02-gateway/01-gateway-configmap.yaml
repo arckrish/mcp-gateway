@@ -1,0 +1,15 @@
+# This ConfigMap is referenced by the Gateway's infrastructure.parametersRef.
+# The service-CA annotation tells OpenShift to mint a serving certificate for
+# the Gateway's backing Service and store it in Secret/mcp-gateway-tls.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-gateway-config
+  namespace: openshift-ingress
+data:
+  service: |
+    metadata:
+      annotations:
+        service.beta.openshift.io/serving-cert-secret-name: "mcp-gateway-tls"
+    spec:
+      type: ClusterIP

@@ -1,0 +1,50 @@
+# Gateway with three listeners:
+#   - http (port 80, plain HTTP)       — MCPGatewayExtension targets this
+#   - mcps (port 8080, plain HTTP)     — reserved for direct MCP traffic
+#   - https (port 443, HTTPS Terminate) — uses cert from service-CA secret
+#
+# REPLACE __MCP_HOSTNAME__ with your DNS hostname before applying,
+# e.g. mcp.apps.<your-cluster-domain>
+#
+# The install.sh script will substitute this automatically if you set
+# MCP_HOSTNAME in your environment.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: mcp-gateway
+  namespace: openshift-ingress
+spec:
+  gatewayClassName: openshift-default
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: mcp-gateway-config
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: __MCP_HOSTNAME__
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: mcps
+      port: 8080
+      protocol: HTTP
+      hostname: __MCP_HOSTNAME__
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https
+      port: 443
+      protocol: HTTPS
+      hostname: __MCP_HOSTNAME__
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: mcp-gateway-tls

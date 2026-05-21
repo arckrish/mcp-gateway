@@ -1,0 +1,16 @@
+# Allows MCPGatewayExtension objects in namespace 'demo' to reference the
+# Gateway in namespace 'openshift-ingress'. Required because cross-namespace
+# references are denied by default in Gateway API.
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-demo-mcp-extension
+  namespace: openshift-ingress
+spec:
+  from:
+    - group: mcp.kuadrant.io
+      kind: MCPGatewayExtension
+      namespace: demo
+  to:
+    - group: gateway.networking.k8s.io
+      kind: Gateway

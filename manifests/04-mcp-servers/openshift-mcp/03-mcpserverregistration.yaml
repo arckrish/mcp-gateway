@@ -1,0 +1,22 @@
+# Registers the openshift-mcp-server upstream with the MCP Gateway broker.
+#
+# - spec.targetRef.name must point at an HTTPRoute that resolves to the
+#   backend Service.
+# - spec.path is the path the upstream MCP server serves on
+#   (kubernetes_mcp_server serves at /mcp by default).
+# - spec.toolPrefix is prepended to every tool name from this upstream when
+#   it surfaces through the gateway. This prevents collisions across multiple
+#   upstreams. Example: "openshift-mcp_pods_list" is exposed externally.
+apiVersion: mcp.kuadrant.io/v1alpha1
+kind: MCPServerRegistration
+metadata:
+  name: openshift-mcp
+  namespace: demo
+spec:
+  path: /mcp
+  toolPrefix: openshift-mcp_
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: openshift-mcp-server
+    namespace: demo

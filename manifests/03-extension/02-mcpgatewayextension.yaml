@@ -1,0 +1,29 @@
+# MCPGatewayExtension drives the broker deployment and the ext_proc filter.
+#
+# IMPORTANT (MCP Gateway 0.6.0 Tech Preview):
+# This extension targets sectionName: http intentionally. The mcp_controller
+# infers the upstream URL scheme from the listener protocol it targets:
+#   - sectionName: http  -> broker dials http://<upstream>
+#   - sectionName: https -> broker dials https://<upstream>
+#
+# In 0.6.0 the broker has no way to configure trusted CAs for HTTPS upstreams
+# (see Kuadrant issues #659 and #917). Targeting the HTTP listener side-steps
+# that limitation. HTTPS to external clients is preserved via an OpenShift
+# Route with edge TLS termination (manifests/05-route).
+#
+# When MCP Gateway 0.7 ships with HTTPS upstream support, retarget this to
+# sectionName: https.
+apiVersion: mcp.kuadrant.io/v1alpha1
+kind: MCPGatewayExtension
+metadata:
+  name: mcp-extension
+  namespace: demo
+spec:
+  backendPingIntervalSeconds: 60
+  httpRouteManagement: Enabled
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: mcp-gateway
+    namespace: openshift-ingress
+    sectionName: http

@@ -1,0 +1,40 @@
+# Workaround for MCP Gateway 0.6.0 on OpenShift:
+#
+# The broker is deployed with the flag
+#   --mcp-gateway-private-host=mcp-gateway-istio.openshift-ingress.svc.cluster.local:443
+# This Service name matches the convention used by vanilla Istio IstioOperator
+# deployments, but on OpenShift the Gateway controller creates a Service named
+# mcp-gateway-openshift-default instead. As a result, the broker fails to
+# resolve mcp-gateway-istio when it tries to loop tool calls back through the
+# gateway (you see errors like "no such host" when calling tools/call).
+#
+# This Service acts as an alias: same selector and ports as the real Gateway
+# Service. Remove it if a future MCP Gateway release fixes the assumption.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-gateway-istio
+  namespace: openshift-ingress
+  labels:
+    app.kubernetes.io/part-of: mcp-gateway-sample
+spec:
+  type: ClusterIP
+  # The selector must match the labels on the openshift-default Gateway pods.
+  # Verify on your cluster with:
+  #   oc get svc mcp-gateway-openshift-default -n openshift-ingress \
+  #     -o jsonpath='{.spec.selector}'
+  selector:
+    gateway.networking.k8s.io/gateway-name: mcp-gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+    - name: mcps
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: 443
+      protocol: TCP

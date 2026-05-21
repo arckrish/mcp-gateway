@@ -1,0 +1,33 @@
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+
+# Local kube/oc state
+.kube/
+kubeconfig*
+
+# Per-environment overrides users might create locally
+*.local.yaml
+*.local.env
+
+# Generated artifacts
+/tmp/
+
+# Helm (if you later convert manifests to a chart)
+charts/*.tgz
+**/charts/
+**/Chart.lock
+
+# Kustomize overlays users might generate
+**/generated/
+
+# Test/debug output
+*.log
+debug-*.yaml
+
+# Secrets — defensive guard if anyone ever adds Secret manifests with real values
+*-secret.yaml
+secrets/
